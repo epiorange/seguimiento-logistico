@@ -1,7 +1,10 @@
 import streamlit as st
 import requests
+import folium
+from streamlit_folium import st_folium
+import pandas as pd
 
-# Configuración de la página
+# 1. Configuración de la página
 st.set_page_config(page_title="Registro de Conductores", page_icon="🚚")
 
 # Título
@@ -130,3 +133,5 @@ with st.form("form_envio"):
             st.warning("Origen y destino son obligatorios")
     elif submitted_envio and not conductor_id:
         st.error("No hay conductores disponibles para asignar el envío")
+        
+        
