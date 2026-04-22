@@ -38,6 +38,16 @@
   - Búsqueda por ID de envío.
   - Visualización de última ubicación en mapa.
 
+  ## 2026-04-23 (Sprint 2 - Mapas completado)
+- Implementado **Panel del Conductor**:
+  - Selección de conductor y envío.
+  - Mapa interactivo (Folium) para actualizar ubicación.
+  - Corrección de error 204 (ahora acepta 200 y 204 como éxito).
+- Implementado **Rastreo de Envío**:
+  - Búsqueda por ID de envío.
+  - Visualización de última ubicación en mapa.
+- Todo el sistema funciona correctamente: registro de conductores, creación de envíos, actualización de ubicación y rastreo
+
 ## Próximos pasos (Sprint 3)
 - [ ] Probar mapas y corregir errores.
 - [ ] Agregar notificaciones por WhatsApp (Twilio).
