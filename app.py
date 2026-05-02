@@ -31,6 +31,30 @@ def guardar_conductor(nombre, placa, telefono):
         return True, "Conductor guardado correctamente"
     else:
         return False, f"Error {response.status_code}: {response.text}"
+    
+def guardar_cliente(nombre, empresa, email, telefono):
+    """Registra un nuevo cliente en Supabase. Retorna (True, mensaje) o (False, error)."""
+    url = f"{SUPABASE_URL}/rest/v1/clientes"
+    data = {
+        "nombre": nombre,
+        "empresa": empresa if empresa else None,
+        "email": email if email else None,
+        "telefono": telefono if telefono else None
+    }
+    # Eliminar campos None para que Supabase los ignore (asignará NULL)
+    data = {k: v for k, v in data.items() if v is not None}
+    try:
+        response = requests.post(url, headers=headers, json=data)
+        response.raise_for_status()
+        return True, "Cliente registrado correctamente"
+    except requests.exceptions.RequestException as e:
+        # Intentar obtener el mensaje de error de Supabase
+        try:
+            error_detail = response.json()
+            msg = error_detail.get('message', str(e))
+        except:
+            msg = str(e)
+        return False, f"Error al guardar cliente: {msg}"
 
 def obtener_conductores():
     url = f"{SUPABASE_URL}/rest/v1/conductores?select=*"
@@ -40,7 +64,19 @@ def obtener_conductores():
     else:
         return []
 
-def guardar_envio(conductor_id, origen, destino):
+def obtener_clientes():
+    """Obtiene la lista de clientes desde Supabase. Maneja errores de conexión y HTTP."""
+    url = f"{SUPABASE_URL}/rest/v1/clientes?select=*"
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        st.error(f"Error al obtener clientes: {e}")
+        return []
+
+def guardar_envio(conductor_id, origen, destino, cliente_id=None):
+    """Crea un nuevo envío. El cliente es opcional."""
     url = f"{SUPABASE_URL}/rest/v1/envios"
     data = {
         "conductor_id": conductor_id,
@@ -48,17 +84,40 @@ def guardar_envio(conductor_id, origen, destino):
         "destino": destino,
         "estado": "pendiente"
     }
-    response = requests.post(url, headers=headers, json=data)
-    if response.status_code == 201:
+    if cliente_id is not None:
+        data["cliente_id"] = cliente_id
+    try:
+        response = requests.post(url, headers=headers, json=data)
+        response.raise_for_status()
         return True, "Envío creado correctamente"
-    else:
-        return False, f"Error: {response.status_code}"
-
+    except requests.exceptions.RequestException as e:
+        return False, f"Error al crear envío: {e}"
+#AGREGUE NUEVA FUNCION PARA EL REGISTRO DE CLIENTES. 05022025
+def pagina_registro_clientes():
+    st.header("📋 Registro de Clientes")
+    with st.form("form_cliente"):
+        nombre = st.text_input("Nombre / Razón Social *")
+        empresa = st.text_input("Empresa (opcional)")
+        email = st.text_input("Correo electrónico")
+        telefono = st.text_input("Teléfono")
+        submitted = st.form_submit_button("Registrar Cliente")
+        
+        if submitted:
+            if not nombre:
+                st.warning("El nombre es obligatorio.")
+            else:
+                ok, msg = guardar_cliente(nombre, empresa, email, telefono)
+                if ok:
+                    st.success(msg)
+                    st.rerun()
+                else:
+                    st.error(msg)
+                        
 # --------------------------------------------------
 # INTERFAZ DE USUARIO CON BARRA LATERAL
 # --------------------------------------------------
 st.sidebar.title("Navegación")
-opcion = st.sidebar.radio("Ir a:", ["Registro de Conductores", "Crear Envío", "Panel del Conductor", "Rastrear Envío"])
+opcion = st.sidebar.radio("Ir a:", ["Registro de Conductores", "Crear Envío", "Registro de Clientes", "Panel del Conductor", "Rastrear Envío"])
 
 if opcion == "Registro de Conductores":
     st.header("🚚 Registro de Conductores")
@@ -98,12 +157,28 @@ elif opcion == "Crear Envío":
         else:
             st.warning("Primero debes registrar al menos un conductor.")
             conductor_id = None
+            
+        # ---- NUEVO: Selector de Clientes ----
+        clientes_lista = obtener_clientes()
+        if clientes_lista:
+            opciones_cliente = {f"{c['nombre']} ({c.get('empresa', 'Sin empresa')})": c['id'] for c in clientes_lista}
+            cliente_seleccionado = st.selectbox("Cliente (opcional)", options=["Ninguno"] + list(opciones_cliente.keys()))
+            if cliente_seleccionado != "Ninguno":
+                cliente_id = opciones_cliente[cliente_seleccionado]
+            else:
+                cliente_id = None
+        else:
+            st.info("No hay clientes registrados. Puedes dejar el cliente sin asignar.")
+            cliente_id = None
+
         origen = st.text_input("Origen")
         destino = st.text_input("Destino")
+
         submitted_envio = st.form_submit_button("Crear Envío")
+
         if submitted_envio and conductor_id:
             if origen and destino:
-                ok, msg = guardar_envio(conductor_id, origen, destino)
+                ok, msg = guardar_envio(conductor_id, origen, destino, cliente_id)  # pasamos cliente_id
                 if ok:
                     st.success(msg)
                     st.rerun()
@@ -112,7 +187,12 @@ elif opcion == "Crear Envío":
             else:
                 st.warning("Origen y destino son obligatorios")
         elif submitted_envio and not conductor_id:
-            st.error("No hay conductores disponibles")
+            st.error("No hay conductores disponibles")    
+##################################################
+elif opcion == "Registro de Clientes":
+    pagina_registro_clientes()            
+
+########## ellif panel del condocutor#########
 
 elif opcion == "Panel del Conductor":
     st.header("🚛 Panel del Conductor")
@@ -157,7 +237,9 @@ elif opcion == "Panel del Conductor":
                         st.error(f"Error al actualizar: {response_update.status_code}")
         else:
             st.error("Error al cargar los envíos")
-
+#---------------------------------------------------
+#RASTREO DE ENVIO
+#----------------------------------------------------
 elif opcion == "Rastrear Envío":
     st.header("🔍 Rastrear Envío")
     envio_id = st.number_input("ID del envío", min_value=1, step=1)
