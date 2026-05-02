@@ -26,3 +26,10 @@
 *   **Decisión - Monetización**: Se adoptó un modelo Freemium con una capa SaaS y una capa transaccional.
 *   **Investigación - Pagos**: Se identificó que el ecosistema de pagos digitales B2B en Colombia está en pleno despegue con la llegada de Bre-B. Se debe investigar a fondo la integración con Cobre, la plataforma pionera en habilitar pagos instantáneos para empresas de logística[reference:12].
 *   **Investigación - Confianza**: Se determinó que construir un sistema robusto de reputación y verificación de documentos es más prioritario que implementar pagos online en esta fase.
+
+### 2026-05-03 - Avance en modelo de negocio
+- Se completa la gestión de clientes dentro de la plataforma.
+- Cada envío ahora puede asociarse a un cliente, lo que permite:
+  - Rastreo personalizado por cliente (futuro).
+  - Segmentación de demanda y análisis de uso.
+- Base técnica para futura autenticación (rol cliente).

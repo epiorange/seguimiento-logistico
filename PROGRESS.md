@@ -53,3 +53,15 @@
 - [ ] Agregar notificaciones por WhatsApp (Twilio).
 - [ ] Autenticación de usuarios (login).
 - [ ] Mejora de diseño y reportes.
+
+### 2026-05-03 (Sprint 3 - Integración de Clientes y Envíos)
+- **Registro de clientes**:
+  - Función `obtener_clientes()` y `guardar_cliente()`.
+  - Nueva sección en barra lateral "Registro de Clientes" con formulario.
+- **Integración con envíos**:
+  - Modificada función `guardar_envio` para aceptar `cliente_id` opcional.
+  - Añadido selector de clientes en el formulario "Crear Envío".
+  - Corregido error `StreamlitDuplicateElementId` (eliminadas líneas duplicadas de `text_input`).
+- **Validaciones**:
+  - Los envíos se guardan correctamente con `cliente_id` en Supabase.
+  - Pruebas de integración exitosas.
