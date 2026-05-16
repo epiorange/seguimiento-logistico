@@ -47,3 +47,17 @@ CREATE INDEX IF NOT EXISTS idx_envios_estado ON envios(estado);
 COMMENT ON TABLE conductores IS 'Personas que ofrecen el servicio de transporte';
 COMMENT ON TABLE clientes IS 'Empresas o individuos que necesitan enviar carga';
 COMMENT ON TABLE envios IS 'Transacciones de carga que vinculan a un conductor con un cliente';
+
+-- Tabla: perfiles
+-- Almacena información adicional de los usuarios (rol, nombre, etc.)
+CREATE TABLE IF NOT EXISTS perfiles (
+    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    email TEXT NOT NULL,
+    rol TEXT NOT NULL CHECK (rol IN ('cliente', 'conductor', 'admin')),
+    nombre TEXT,
+    telefono TEXT,
+    empresa TEXT,
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
+COMMENT ON TABLE perfiles IS 'Perfiles de usuarios vinculados a auth.users';
