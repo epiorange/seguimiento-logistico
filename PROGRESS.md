@@ -65,3 +65,15 @@
 - **Validaciones**:
   - Los envíos se guardan correctamente con `cliente_id` en Supabase.
   - Pruebas de integración exitosas.
+### 2026-05-17 - Sprint 4: Autenticación de usuarios (completo)
+- Implementado registro de usuarios con Supabase Auth (email + password).
+- Implementado inicio de sesión y cierre de sesión.
+- Manejo de sesiones con `st.session_state`.
+- Tabla `perfiles` en Supabase para almacenar rol, nombre, teléfono, empresa de cada usuario.
+- Protección de rutas según rol:
+  - admin: acceso a todas las secciones (conductores, clientes, envíos, paneles, rastreo).
+  - conductor: solo panel del conductor.
+  - cliente: solo rastreo y (próximamente) mis envíos.
+- Reorganización completa del código en funciones modulares por página.
+- Refactorización para evitar duplicación y mejorar legibilidad.
+- Pruebas exitosas de registro y login con diferentes roles.

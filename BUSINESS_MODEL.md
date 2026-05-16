@@ -33,3 +33,8 @@
   - Rastreo personalizado por cliente (futuro).
   - Segmentación de demanda y análisis de uso.
 - Base técnica para futura autenticación (rol cliente).
+### 2026-05-17 - Hito técnico: Autenticación y roles
+- Se añade gestión de usuarios con roles (admin, conductor, cliente). Esto permite construir un sistema multi-tenant, base para:
+  - Panel personalizado para cada cliente (ver solo sus envíos).
+  - Seguridad en las peticiones a futuro (usando tokens JWT).
+  - Modelo de negocio: diferenciar funcionalidades por tipo de usuario (freemium, planes por rol).
